@@ -11,15 +11,12 @@ from Format import format_
 
 
 #在当前目录下保存
-soure_html=".\\ReadMe.html"
-soure_text=".\\ReadMe.txt"
+soure_path=".\\ReadMe.txt"
 
 #抓取地址
 fanly_url="https://zhide.fanli.com/p"
 #源地址
 fanly_soure="https://zhide.fanli.com"
-
-
 
 class refine():
     """提取需要的内容"""
@@ -40,6 +37,7 @@ class refine():
 
         counts = 0
         html_lists = []
+        #遍历数据
         for documents in element: 
             counts = counts + 1
             #获取链接
@@ -56,48 +54,23 @@ class refine():
             vote_no = documents.find_all("a",attrs={"class":"l item-vote-no J-item-vote-no"})[0].get_text()
             #获取标题
             title = documents.find_all("a",attrs={"class":"J-item-track nodelog"})[0].get_text()
-
-            output = "\n#"+str(counts)+" >>"+str(title)+"\n#链接："+str(fanly_soure)+str(links)
+            #按打印格式连接字符串
+            output = "\n#"+str(counts)+" >>"+\
+                    str(title)+"\n#链接："+str(fanly_soure)+str(links)+\
+                    "\n#发布时间："+str(time_info)+"\t#分类："+str(tags)+"\t#"+str(itme_user)+\
+                    "\n#值："+str(vote_yes)+"\t#呸："+str(vote_no)
             
             print(output)
             html_lists.append(output)
+
         self.list = html_lists
+
         return html_lists
-
-    def checksToHtml(self):
-        text = BeautifulSoup(self.html,'lxml')
-        print("Title:",text.title.string)
-        #print(text)
-        #for x in range(1,10):
-        #    element = text.find_all(attrs={'id' : x})[0].get_text()
-        #    print(x," >> ",element)
        
-        element = text.find_all('div',class_='zdm-list-item J-item-wrap')
-        print(len(element))
-
-        counts = 0
-        html_lists = []
-        for documents in element: 
-            counts = counts + 1
-            links = documents.find_all("a",attrs={"class":"J-item-track nodelog"})[0].get('href')
-            documents = documents.find_all("a",attrs={"class":"J-item-track nodelog"})[0].get_text() 
-
-            #a = documents.a
-
-            #a['href'] = str(fanly_soure + links)
-            #print("\n",counts,">>",documents)
-            #print("\n链接：",fanly_soure+links)
-            output = "##"+str(counts)+". ["+str(documents)+"]("+str(fanly_soure)+str(links)+")    "
-            
-            #print(output)
-            html_lists.append(output)
-
-        return documents      
-   
 if __name__ == "__main__":
 
-    #抓取10页信息
-    html = spider_().get_html(url=fanly_url , end_page=1 , max_time=0)
+    #抓取5页信息,设置爬取最大休眠时间为1秒
+    html = spider_().get_html(url=fanly_url , end_page=5 , max_time=1)
 
     #提取需要信息
     md = refine(html)
@@ -105,10 +78,9 @@ if __name__ == "__main__":
     #提取文档，规整数据，输出打印并写入本地
     data = md.checksToText()
     try:
-        with open(soure_text,'a',encoding='utf-8') as file:
+        with open(soure_path,'a',encoding='utf-8') as file:
 
-            format_.print_s(time.asctime( time.localtime(time.time()) ),file_name=file)
             format_.print_s(data,file_name=file)
-            #file.write(str(data))
+
     except IOError as e:
         print('File Error:' + str(ioerr))

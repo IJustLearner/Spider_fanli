@@ -26,10 +26,10 @@ class spider_():
     def get_html(self,url,start_page=1,end_page=1,mini_time=0,max_time=2):
         """爬取指定网页，返回html页面
 		url:待爬取网页链接
-		start_page:爬取的起始页
-		end_page:爬取的结束页
-		mini_time:爬取网页时的最小等待时间
-		max_time:爬取网页时的最大等待时间
+		start_page:爬取的起始页,默认为第一页
+		end_page:爬取的结束页,默认为第一页
+		mini_time:爬取网页时的最小休眠时间,默认为0
+		max_time:爬取网页时的最大休眠时间，默认为2
         """
         if start_page<1:
             return "#页码输入错误"
@@ -37,16 +37,18 @@ class spider_():
             return "#页码超出范围，请输入1-100的整数!"
         time_start1 = time.time()
         for i in range(start_page,end_page+1):
+            time_start2 = time.time()
             try:
                 url_sourse = url+str(i)
                 r = requests.get(url_sourse,headers=self.header,timeout=10)
-                r.encoding = 'utf-8'
-
-                print("#GET:",url_sourse," status_code:",r.status_code," encode:",r.encoding)
+                r.encoding = 'utf-8'  
                 #print(r.headers)
                 r.raise_for_status()  # 如果响应状态码不是 200，就主动抛出异常
                 #data = str(r)
                 self.html.append(r.text) #将爬取的多个页面合并
+
+                time_end2=time.time()   
+                print("#GET:",url_sourse," status_code:",r.status_code," encode:",r.encoding,"\t#Cost time:",round(time_end2-time_start2,2),"s" )
 
                 time.sleep(random.uniform(mini_time, max_time))	#随机休眠mini_time~max_time秒
 
@@ -54,5 +56,5 @@ class spider_():
                 print("#ERROR:拒绝连接！")	
 
         time_end1=time.time()
-        print("#Times:",round(time_end1-time_start1,2),"s" )
+        print("#Total time:",round(time_end1-time_start1,2),"s" )
         return str(self.html)
